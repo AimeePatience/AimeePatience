@@ -1,5 +1,5 @@
 - 👋 Hi, I’m @AimeePatience
-- 👀 I’m interested in software development and cyber security. 
+- 👀 I’m interested in data science and cyber security. 
 - 🌱 I’m currently learning computer science..
 
 <!---
