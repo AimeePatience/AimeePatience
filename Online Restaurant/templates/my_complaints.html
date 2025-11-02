@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}My Complaints - AI Restaurant{% endblock %}
+
+{% block content %}
+<h2>My Complaints</h2>
+
+{% if complaints %}
+<div class="table-responsive">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Against</th>
+                <th>Type</th>
+                <th>Description</th>
+                <th>Status</th>
+                <th>Date</th>
+                <th>Decision</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for complaint in complaints %}
+            <tr>
+                <td>#{{ complaint.id }}</td>
+                <td>{{ complaint.target.username }}</td>
+                <td>{{ complaint.type }}</td>
+                <td>{{ complaint.description[:50] }}...</td>
+                <td>
+                    <span class="badge bg-{{ 'success' if complaint.status == 'Approved' else 'danger' if complaint.status == 'Rejected' else 'warning' }}">
+                        {{ complaint.status }}
+                    </span>
+                </td>
+                <td>{{ complaint.created_at.strftime('%Y-%m-%d') }}</td>
+                <td>
+                    {% if complaint.manager_decision %}
+                        {{ complaint.manager_decision }}
+                        {% if complaint.manager_notes %}
+                        <br><small class="text-muted">{{ complaint.manager_notes }}</small>
+                        {% endif %}
+                    {% else %}
+                        Pending Review
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="alert alert-info">
+    You haven't filed any complaints. <a href="{{ url_for('file_complaint') }}">File a complaint</a> if needed.
+</div>
+{% endif %}
+{% endblock %}
+
+

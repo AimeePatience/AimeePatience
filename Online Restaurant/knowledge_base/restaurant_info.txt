@@ -1,0 +1,23 @@
+Welcome to AI Restaurant! We are a modern restaurant offering delicious food with AI-powered customer service.
+
+Our menu includes a variety of dishes prepared by our expert chefs. You can browse our menu online and place orders for delivery.
+
+To place an order, you need to register as a customer and deposit money into your account. Once you have a balance, you can add items to your cart and place orders.
+
+We offer delivery service. Our delivery personnel will bring your order to your specified address.
+
+You can rate chefs after receiving your order. Ratings help us maintain quality and reward excellent chefs.
+
+VIP customers are those who have spent over $100 or made 3 orders without complaints. VIP customers enjoy special benefits.
+
+If you have any complaints or compliments, you can file them through the system. Our manager reviews all submissions to ensure fairness.
+
+For questions about our menu, delivery times, or services, feel free to ask our AI assistant!
+
+We accept orders online through our website. Registration is free and easy.
+
+Our chefs are skilled professionals who prepare each dish with care and attention to quality.
+
+Delivery typically takes 30-45 minutes depending on your location and order size.
+
+

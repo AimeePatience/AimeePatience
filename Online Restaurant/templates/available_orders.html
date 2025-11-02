@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}Available Orders - AI Restaurant{% endblock %}
+
+{% block content %}
+<h2>Available Orders for Delivery</h2>
+
+{% if orders %}
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Order ID</th>
+                <th>Customer</th>
+                <th>Items</th>
+                <th>Total</th>
+                <th>Address</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+            <tr>
+                <td>#{{ order.id }}</td>
+                <td>{{ order.customer.username }}</td>
+                <td>
+                    {% for item in order.items %}
+                    {{ item.menu_item.name }} (x{{ item.quantity }})<br>
+                    {% endfor %}
+                </td>
+                <td>${{ "%.2f"|format(order.total_amount) }}</td>
+                <td>{{ order.delivery_address or 'N/A' }}</td>
+                <td>
+                    <span class="badge bg-{{ 'success' if order.status == 'Ready' else 'warning' }}">
+                        {{ order.status }}
+                    </span>
+                </td>
+                <td>
+                    <form method="POST" action="{{ url_for('delivery_bid', order_id=order.id) }}" class="d-inline">
+                        <div class="input-group" style="width: 200px;">
+                            <input type="number" name="bid_amount" class="form-control form-control-sm" 
+                                   placeholder="Bid (optional)" step="0.01" min="0">
+                            <button type="submit" class="btn btn-sm btn-primary">Place Bid</button>
+                        </div>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="alert alert-info">
+    No orders available for delivery at the moment.
+</div>
+{% endif %}
+{% endblock %}
+
+

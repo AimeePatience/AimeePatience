@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}File Compliment - AI Restaurant{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h3>File a Compliment</h3>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('file_compliment') }}">
+                    <div class="mb-3">
+                        <label for="order_id" class="form-label">Order (if applicable)</label>
+                        <select class="form-select" id="order_id" name="order_id">
+                            <option value="">Select an order...</option>
+                            {% for order in orders %}
+                            <option value="{{ order.id }}" {% if request.args.get('order_id') == order.id|string %}selected{% endif %}>
+                                Order #{{ order.id }} - ${{ "%.2f"|format(order.total_amount) }} - {{ order.status }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="filed_against_id" class="form-label">Compliment For</label>
+                        <select class="form-select" id="filed_against_id" name="filed_against_id" required>
+                            <option value="">Select...</option>
+                            {% if orders %}
+                                {% for order in orders %}
+                                    {% if order.delivery_person %}
+                                    <option value="{{ order.delivery_person.id }}">
+                                        Delivery Person: {{ order.delivery_person.username }} (Order #{{ order.id }})
+                                    </option>
+                                    {% endif %}
+                                    {% for item in order.items %}
+                                        {% if item.menu_item.chef %}
+                                        <option value="{{ item.menu_item.chef.id }}">
+                                            Chef: {{ item.menu_item.chef.username }} (Order #{{ order.id }})
+                                        </option>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endfor %}
+                            {% endif %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="type" class="form-label">Compliment Type</label>
+                        <select class="form-select" id="type" name="type" required>
+                            <option value="quality">Excellent Food Quality</option>
+                            <option value="service">Great Service</option>
+                            <option value="delivery">Fast Delivery</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" id="description" name="description" rows="5" required 
+                                  placeholder="Please share your positive feedback..."></textarea>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-success">Submit Compliment</button>
+                        <a href="{{ url_for('index') }}" class="btn btn-secondary mt-2">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+

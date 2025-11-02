@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+
+{% block title %}Manager Dashboard - AI Restaurant{% endblock %}
+
+{% block content %}
+<h2>Manager Dashboard</h2>
+
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-white bg-warning">
+            <div class="card-body">
+                <h5>Pending Complaints</h5>
+                <h2>{{ pending_complaints|length }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-info">
+            <div class="card-body">
+                <h5>Pending Orders</h5>
+                <h2>{{ pending_orders|length }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-success">
+            <div class="card-body">
+                <h5>Pending Compliments</h5>
+                <h2>{{ pending_compliments|length }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-danger">
+            <div class="card-body">
+                <h5>Flagged KB Entries</h5>
+                <h2>{{ flagged_kb|length }}</h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Pending Complaints -->
+{% if pending_complaints %}
+<div class="card mb-4">
+    <div class="card-header">
+        <h4>Pending Complaints</h4>
+    </div>
+    <div class="card-body">
+        {% for complaint in pending_complaints %}
+        <div class="mb-3 p-3 border rounded">
+            <p><strong>Filed by:</strong> {{ complaint.filer.username }} | 
+               <strong>Against:</strong> {{ complaint.target.username }} |
+               <strong>Type:</strong> {{ complaint.type }}</p>
+            <p><strong>Description:</strong> {{ complaint.description }}</p>
+            {% if complaint.order %}
+            <p><small>Related to Order #{{ complaint.order.id }}</small></p>
+            {% endif %}
+            <form method="POST" action="{{ url_for('review_complaint', complaint_id=complaint.id) }}" class="d-inline">
+                <textarea name="notes" class="form-control mb-2" placeholder="Manager notes (optional)" rows="2"></textarea>
+                <button type="submit" name="decision" value="Approved" class="btn btn-sm btn-success">Approve</button>
+                <button type="submit" name="decision" value="Rejected" class="btn btn-sm btn-danger">Reject</button>
+            </form>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!-- Pending Compliments -->
+{% if pending_compliments %}
+<div class="card mb-4">
+    <div class="card-header">
+        <h4>Pending Compliments</h4>
+    </div>
+    <div class="card-body">
+        {% for compliment in pending_compliments %}
+        <div class="mb-3 p-3 border rounded">
+            <p><strong>Filed by:</strong> {{ compliment.filer.username }} | 
+               <strong>For:</strong> {{ compliment.target.username }} |
+               <strong>Type:</strong> {{ compliment.type }}</p>
+            <p><strong>Description:</strong> {{ compliment.description }}</p>
+            <form method="POST" action="{{ url_for('review_compliment', compliment_id=compliment.id) }}" class="d-inline">
+                <textarea name="notes" class="form-control mb-2" placeholder="Manager notes (optional)" rows="2"></textarea>
+                <button type="submit" name="decision" value="Approved" class="btn btn-sm btn-success">Approve</button>
+            </form>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!-- Pending Orders with Bids -->
+{% if pending_orders %}
+<div class="card mb-4">
+    <div class="card-header">
+        <h4>Pending Orders for Assignment</h4>
+    </div>
+    <div class="card-body">
+        {% for order in pending_orders %}
+        <div class="mb-3 p-3 border rounded">
+            <p><strong>Order #{{ order.id }}</strong> | 
+               <strong>Customer:</strong> {{ order.customer.username }} |
+               <strong>Total:</strong> ${{ "%.2f"|format(order.total_amount) }}</p>
+            <p><strong>Items:</strong>
+                {% for item in order.items %}
+                {{ item.menu_item.name }} (x{{ item.quantity }})
+                {% endfor %}
+            </p>
+            
+            <!-- Show bids for this order -->
+            {% set order_bids = bids|selectattr('order_id', 'equalto', order.id)|list %}
+            {% if order_bids %}
+            <p><strong>Bids:</strong></p>
+            <ul>
+                {% for bid in order_bids %}
+                <li>{{ bid.delivery_person.username }} - 
+                    {% if bid.bid_amount %}Bid: ${{ "%.2f"|format(bid.bid_amount) }}{% else %}No bid amount{% endif %}
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p><em>No bids yet</em></p>
+            {% endif %}
+            
+            <form method="POST" action="{{ url_for('assign_order', order_id=order.id) }}" class="mt-2">
+                <select name="delivery_person_id" class="form-select d-inline-block" style="width: auto;" required>
+                    <option value="">Select delivery person...</option>
+                    {% for bid in order_bids %}
+                    <option value="{{ bid.delivery_person.id }}">{{ bid.delivery_person.username }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="btn btn-sm btn-primary">Assign Order</button>
+            </form>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!-- Flagged Knowledge Base Entries -->
+{% if flagged_kb %}
+<div class="card mb-4">
+    <div class="card-header">
+        <h4>Flagged Knowledge Base Entries</h4>
+    </div>
+    <div class="card-body">
+        {% for entry in flagged_kb %}
+        <div class="mb-3 p-3 border border-danger rounded">
+            <p><strong>Question:</strong> {{ entry.question }}</p>
+            <p><strong>Answer:</strong> {{ entry.answer }}</p>
+            <p><small>Rating: {{ entry.rating }}/5.0 ({{ entry.rating_count }} ratings)</small></p>
+            <form method="POST" action="{{ url_for('unflag_kb_entry', entry_id=entry.id) }}" class="d-inline">
+                <button type="submit" class="btn btn-sm btn-warning">Unflag</button>
+            </form>
+            <form method="POST" action="{{ url_for('remove_kb_entry', entry_id=entry.id) }}" class="d-inline">
+                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Remove this entry?')">Remove</button>
+            </form>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<div class="mt-4">
+    <a href="{{ url_for('hr_management') }}" class="btn btn-primary">HR Management</a>
+    <a href="{{ url_for('manage_knowledge_base') }}" class="btn btn-secondary">Manage Knowledge Base</a>
+</div>
+{% endblock %}
+
+

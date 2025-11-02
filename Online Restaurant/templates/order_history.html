@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}Order History - AI Restaurant{% endblock %}
+
+{% block content %}
+<h2>My Orders</h2>
+
+{% if orders %}
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Order ID</th>
+                <th>Date</th>
+                <th>Items</th>
+                <th>Total</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+            <tr>
+                <td>#{{ order.id }}</td>
+                <td>{{ order.timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
+                <td>
+                    {% for item in order.items %}
+                    {{ item.menu_item.name }} (x{{ item.quantity }})<br>
+                    {% endfor %}
+                </td>
+                <td>${{ "%.2f"|format(order.total_amount) }}</td>
+                <td>
+                    <span class="badge bg-{{ 'success' if order.status == 'Delivered' else 'warning' if order.status == 'Preparing' else 'info' }}">
+                        {{ order.status }}
+                    </span>
+                </td>
+                <td>
+                    {% if order.status == 'Delivered' %}
+                        <a href="{{ url_for('rate_chef', order_id=order.id) }}" class="btn btn-sm btn-primary">Rate Chef</a>
+                    {% endif %}
+                    <a href="{{ url_for('file_complaint') }}?order_id={{ order.id }}" class="btn btn-sm btn-outline-warning">Complain</a>
+                    <a href="{{ url_for('file_compliment') }}?order_id={{ order.id }}" class="btn btn-sm btn-outline-success">Compliment</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="alert alert-info">
+    You haven't placed any orders yet. <a href="{{ url_for('index') }}">Start ordering</a>!
+</div>
+{% endif %}
+{% endblock %}
+
+

@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Knowledge Base - AI Restaurant{% endblock %}
+
+{% block content %}
+<h2>Knowledge Base Management</h2>
+
+<div class="card mb-4">
+    <div class="card-header">
+        <h4>All Knowledge Base Entries</h4>
+    </div>
+    <div class="card-body">
+        {% if entries %}
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Question</th>
+                        <th>Answer</th>
+                        <th>Rating</th>
+                        <th>Status</th>
+                        <th>Created</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for entry in entries %}
+                    <tr class="{% if entry.flagged %}table-danger{% endif %}">
+                        <td>{{ entry.question }}</td>
+                        <td>{{ entry.answer[:100] }}{% if entry.answer|length > 100 %}...{% endif %}</td>
+                        <td>
+                            {{ "%.1f"|format(entry.rating) }}/5.0 
+                            ({{ entry.rating_count }} ratings)
+                        </td>
+                        <td>
+                            {% if entry.flagged %}
+                            <span class="badge bg-danger">Flagged</span>
+                            {% else %}
+                            <span class="badge bg-success">Active</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ entry.created_at.strftime('%Y-%m-%d') }}</td>
+                        <td>
+                            {% if entry.flagged %}
+                            <form method="POST" action="{{ url_for('unflag_kb_entry', entry_id=entry.id) }}" class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-warning">Unflag</button>
+                            </form>
+                            {% endif %}
+                            <form method="POST" action="{{ url_for('remove_kb_entry', entry_id=entry.id) }}" class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-danger"
+                                        onclick="return confirm('Remove this entry?')">Remove</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-muted">No knowledge base entries yet.</p>
+        {% endif %}
+    </div>
+</div>
+
+<div class="alert alert-info">
+    <p><strong>Note:</strong> Knowledge base entries are automatically created when users interact with the AI chat. 
+    Entries with 0-star ratings are automatically flagged for review.</p>
+    <p>To manually add entries, edit the <code>knowledge_base/restaurant_info.txt</code> file.</p>
+</div>
+{% endblock %}
+
+

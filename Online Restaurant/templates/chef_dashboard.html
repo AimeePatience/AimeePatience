@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}Chef Dashboard - AI Restaurant{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h2>Chef Dashboard</h2>
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5>Your Average Rating: 
+                    {% for i in range(1, 6) %}
+                        {% if i <= avg_rating %}
+                        <i class="bi bi-star-fill text-warning"></i>
+                        {% else %}
+                        <i class="bi bi-star text-secondary"></i>
+                        {% endif %}
+                    {% endfor %}
+                    {{ "%.1f"|format(avg_rating) }}/5.0
+                </h5>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h3>Orders with Your Items</h3>
+{% if orders %}
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Order ID</th>
+                <th>Customer</th>
+                <th>Items</th>
+                <th>Total</th>
+                <th>Status</th>
+                <th>Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+            <tr>
+                <td>#{{ order.id }}</td>
+                <td>{{ order.customer.username }}</td>
+                <td>
+                    {% for item in order.items %}
+                        {% if item.menu_item.chef_id == current_user.id %}
+                        {{ item.menu_item.name }} (x{{ item.quantity }})<br>
+                        {% endif %}
+                    {% endfor %}
+                </td>
+                <td>${{ "%.2f"|format(order.total_amount) }}</td>
+                <td>
+                    <span class="badge bg-{{ 'success' if order.status == 'Delivered' else 'warning' if order.status == 'Preparing' else 'info' }}">
+                        {{ order.status }}
+                    </span>
+                </td>
+                <td>{{ order.timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
+                <td>
+                    {% if order.status == 'Pending' %}
+                    <form method="POST" action="{{ url_for('update_order_status', order_id=order.id) }}" class="d-inline">
+                        <input type="hidden" name="status" value="Preparing">
+                        <button type="submit" class="btn btn-sm btn-primary">Start Preparing</button>
+                    </form>
+                    {% elif order.status == 'Preparing' %}
+                    <form method="POST" action="{{ url_for('update_order_status', order_id=order.id) }}" class="d-inline">
+                        <input type="hidden" name="status" value="Ready">
+                        <button type="submit" class="btn btn-sm btn-success">Mark Ready</button>
+                    </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="alert alert-info">
+    No orders with your items yet.
+</div>
+{% endif %}
+{% endblock %}
+
+

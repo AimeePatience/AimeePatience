@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}My Deliveries - AI Restaurant{% endblock %}
+
+{% block content %}
+<h2>My Deliveries</h2>
+
+{% if orders %}
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Order ID</th>
+                <th>Customer</th>
+                <th>Items</th>
+                <th>Total</th>
+                <th>Address</th>
+                <th>Status</th>
+                <th>Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+            <tr>
+                <td>#{{ order.id }}</td>
+                <td>{{ order.customer.username }}</td>
+                <td>
+                    {% for item in order.items %}
+                    {{ item.menu_item.name }} (x{{ item.quantity }})<br>
+                    {% endfor %}
+                </td>
+                <td>${{ "%.2f"|format(order.total_amount) }}</td>
+                <td>{{ order.delivery_address or 'N/A' }}</td>
+                <td>
+                    <span class="badge bg-{{ 'success' if order.status == 'Delivered' else 'warning' }}">
+                        {{ order.status }}
+                    </span>
+                </td>
+                <td>{{ order.timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
+                <td>
+                    {% if order.status == 'Out for Delivery' %}
+                    <form method="POST" action="{{ url_for('update_order_status', order_id=order.id) }}" class="d-inline">
+                        <input type="hidden" name="status" value="Delivered">
+                        <button type="submit" class="btn btn-sm btn-success">Mark Delivered</button>
+                    </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="alert alert-info">
+    You don't have any assigned deliveries.
+</div>
+{% endif %}
+{% endblock %}
+
+

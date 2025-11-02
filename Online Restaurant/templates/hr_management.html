@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}HR Management - AI Restaurant{% endblock %}
+
+{% block content %}
+<h2>Human Resources Management</h2>
+
+<!-- Employees -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h4>Employees</h4>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Salary</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for employee in employees %}
+                    <tr>
+                        <td>{{ employee.username }}</td>
+                        <td>{{ employee.email }}</td>
+                        <td>{{ employee.role }}</td>
+                        <td>${{ "%.2f"|format(employee.salary) }}</td>
+                        <td>
+                            <span class="badge bg-{{ 'success' if employee.is_active else 'danger' }}">
+                                {{ 'Active' if employee.is_active else 'Inactive' }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="btn-group">
+                                <form method="POST" action="{{ url_for('hire_fire', user_id=employee.id) }}" class="d-inline">
+                                    {% if employee.is_active %}
+                                    <button type="submit" name="action" value="fire" class="btn btn-sm btn-danger"
+                                            onclick="return confirm('Fire {{ employee.username }}?')">Fire</button>
+                                    {% else %}
+                                    <button type="submit" name="action" value="hire" class="btn btn-sm btn-success">Hire</button>
+                                    {% endif %}
+                                </form>
+                                <form method="POST" action="{{ url_for('adjust_salary', user_id=employee.id) }}" class="d-inline">
+                                    <div class="input-group" style="width: 150px;">
+                                        <input type="number" name="salary" class="form-control form-control-sm" 
+                                               value="{{ employee.salary }}" step="0.01" min="0">
+                                        <button type="submit" class="btn btn-sm btn-primary">Update</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Blacklisted Users -->
+{% if blacklisted %}
+<div class="card">
+    <div class="card-header">
+        <h4>Blacklisted Users</h4>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Reason</th>
+                        <th>Date Added</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for blacklist_entry in blacklisted %}
+                    <tr>
+                        <td>{{ blacklist_entry.user.username }}</td>
+                        <td>{{ blacklist_entry.user.email }}</td>
+                        <td>{{ blacklist_entry.reason }}</td>
+                        <td>{{ blacklist_entry.date_added.strftime('%Y-%m-%d') }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+

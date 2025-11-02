@@ -1,0 +1,83 @@
+/* Custom styles for AI Restaurant */
+
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+}
+
+.navbar-brand {
+    font-weight: bold;
+}
+
+.card {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+.card-img-top {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+
+.badge {
+    font-size: 0.85em;
+}
+
+.alert {
+    margin-bottom: 20px;
+}
+
+.table-responsive {
+    margin-bottom: 20px;
+}
+
+.btn-group .btn {
+    margin-right: 5px;
+}
+
+/* Cart styles */
+.cart-item {
+    border-bottom: 1px solid #dee2e6;
+    padding: 10px 0;
+}
+
+/* Order status badges */
+.status-pending {
+    background-color: #ffc107;
+}
+
+.status-preparing {
+    background-color: #17a2b8;
+}
+
+.status-ready {
+    background-color: #28a745;
+}
+
+.status-delivered {
+    background-color: #6c757d;
+}
+
+/* Footer */
+footer {
+    margin-top: auto;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .navbar-nav {
+        text-align: center;
+    }
+    
+    .card-img-top {
+        height: 150px;
+    }
+}
+
+
